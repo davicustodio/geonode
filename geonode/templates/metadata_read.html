@@ -23,17 +23,17 @@
 
 <div class="page-header">
     {% if layer.doc_file %}
-    <a href="{% url 'document_detail' docid=docid %}" class="btn btn-primary pull-right">{% trans "Visitar Documento" %}</a>
+    <a href="{% url 'document_detail' docid=docid %}" class="btn btn-primary pull-right">{% trans "Return to Document" %}</a>
     {% else %}
-    <a href="{% url 'layer_detail' layername=layer.typename %}" class="btn btn-primary pull-right">{% trans "Visitar Camada" %}</a>
+    <a href="{% url 'layer_detail' layername=layer.typename %}" class="btn btn-primary pull-right">{% trans "Return to Layer" %}</a>
     {% endif %}
-    <h2 class="page-title">{% trans "Metadados" %} : {{ layer.title }}</h2>
+    <h2 class="page-title">{% trans "Metadata" %} : {{ layer.title }}</h2>
 </div>
 
 
 <article class="description tab-pane active" id="info">
 
-    <span class="subtitle">{% trans "Identificação" %}</span>
+    <span class="subtitle">{% trans "Identification" %}</span>
     <div class="sep_title"><hr></div>
 
     <dl class="dl-horizontal">
@@ -97,17 +97,17 @@
         <dd>{{ layer.regions.all|join:", " }}</dd>
         {% endif %}
 
-        <dt>{% trans "Publicado" %}</dt>
+        <dt>{% trans "Published" %}</dt>
         <dd>{% if layer.is_published %} Sim {% else %} Não {% endif %}</dd>
 
-        <dt>{% trans "Caracterizado" %}</dt>
+        <dt>{% trans "Featured" %}</dt>
         <dd>{% if layer.featured %} Sim {% else %} Não {% endif %}</dd>
 
 
     </dl>
 
 
-    <span class="subtitle">{% trans "Proprietário" %}</span>
+    <span class="subtitle">{% trans "Owner" %}</span>
     <div class="sep_title"><hr></div>
 
     <dl class="dl-horizontal">
@@ -115,7 +115,7 @@
         {% if layer.owner %}
         {% with layer.owner as poc %}
 
-        <dt>{% trans "Nome" %}</dt>
+        <dt>{% trans "Name" %}</dt>
         <dd>{{ poc.name_long }}</dd>
 
         <dt>{% trans "email" %}</dt>
@@ -130,7 +130,7 @@
         <dt>{% trans "Location" %}</dt>
         <dd>{{ poc.location }}</dd>
 
-        <dt>{% trans "Voz" %}</dt>
+        <dt>{% trans "Voice" %}</dt>
         <dd>{{ poc.voice }}</dd>
 
         <dt>{% trans "Fax" %}</dt>
@@ -148,12 +148,12 @@
 
     </dl>
 
-    <span class="subtitle">{% trans "Informações da Camada" %}</span>
+    <span class="subtitle">{% trans "Information of Layer" %}</span>
     <div class="sep_title"><hr></div>
 
     <dl class="dl-horizontal">
 
-        <dt>{% trans "Imagem de Identificação" %}</dt>
+        <dt>{% trans "Identification Image" %}</dt>
         <dd>
             <a href="{{ layer.get_thumbnail_url }}"><img ng-src="{{ layer.get_thumbnail_url }}" src="{{ layer.get_thumbnail_url }}"></a>
         </dd>
@@ -162,27 +162,27 @@
 
     <dl class="dl-horizontal">
 
-        <dt>{% trans "Resolução Espacial" %}</dt>
+        <dt>{% trans "Spatial Resolution" %}</dt>
         <dd>{% if layer.scale %} {{ layer.scale }} {% else %} --- {% endif %}</dd>
 
-        <dt>{% trans "Sistema de Projeção" %}</dt>
+        <dt>{% trans "Projetion System" %}</dt>
         <dd>{{ layer.srid }}</dd>
 
-        <dt>{% trans "Extensão x0" %}</dt>
+        <dt>{% trans "Extension x0" %}</dt>
         <dd>{{layer.bbox_x0}}</dd>
 
-        <dt>{% trans "Extensão x1" %}</dt>
+        <dt>{% trans "Extension x1" %}</dt>
         <dd>{{layer.bbox_x1}}</dd>
 
-        <dt>{% trans "Extensão y0" %}</dt>
+        <dt>{% trans "Extension y0" %}</dt>
         <dd>{{layer.bbox_y0}}</dd>
 
-        <dt>{% trans "Extensão y1" %}</dt>
+        <dt>{% trans "Extension y1" %}</dt>
         <dd>{{layer.bbox_y1}}</dd>
 
     </dl>
 
-    <span class="subtitle">{% trans "Caracteristicas" %}</span>
+    <span class="subtitle">{% trans "Features" %}</span>
     <div class="sep_title"><hr></div>
 
     <dl class="dl-horizontal">
@@ -251,37 +251,36 @@
 
     </dl>
     
-    {% if layer.poc and layer.poc|length > 0 %}   
-    <span class="subtitle">{% trans "Pontos de Contato" %}</span>
+    {% if layer.poc %}   
+    <span class="subtitle">{% trans "Contact Points" %}</span>
     <div class="sep_title"><hr></div>
-
-    {% for poc in layer.poc %}
+    
     <dl class="dl-horizontal">
 
-        <dt>{% trans "Nome" %}</dt>
-        <dd>{{ poc.name_long }}</dd>
+        <dt>{% trans "Name" %}</dt>
+        <dd>{{ layer.poc.name_long }}</dd>
 
         <dt>{% trans "email" %}</dt>
-        <dd>{{ poc.email }}</dd>
+        <dd>{{ layer.poc.email }}</dd>
 
         <dt>{% trans "Position" %}</dt> 
-        <dd>{{ poc.position }}</dd>
+        <dd>{{ layer.poc.position }}</dd>
 
         <dt>{% trans "Organization" %}</dt>
-        <dd>{{ poc.organization }}</dd>
+        <dd>{{ layer.poc.organization }}</dd>
 
         <dt>{% trans "Location" %}</dt>
-        <dd>{{ poc.location }}</dd>
+        <dd>{{ layer.poc.location }}</dd>
 
-        <dt>{% trans "Voz" %}</dt>
-        <dd>{{ poc.voice }}</dd>
+        <dt>{% trans "Voice" %}</dt>
+        <dd>{{ layer.poc.voice }}</dd>
 
         <dt>{% trans "Fax" %}</dt>
-        <dd>{{ poc.fax }}</dd>
+        <dd>{{ layer.poc.fax }}</dd>
 
         {% if poc.keyword_list %}
         <dt>{% trans "Keywords" %}</dt>
-        <dd>{% for keyword in poc.keyword_list %}
+        <dd>{% for keyword in layer.poc.keyword_list %}
             {{ keyword }}
             {% endfor %}</dd>
         {% endif %}
@@ -291,10 +290,10 @@
     </dl>
     
     
-    {% endfor %} 
+    
     {% endif %}
 
-    <span class="subtitle">{% trans "Referências/Distribuição" %}</span>
+    <span class="subtitle">{% trans "References" %}</span>
     <div class="sep_title"><hr></div>
 
     <dl class="dl-horizontal">
@@ -302,11 +301,11 @@
         <dt>{% trans "Link Online" %}</dt>
         <dd><a href="{{ SITEURL }}{{ layer.get_absolute_url }}">{{ SITEURL }}{{ layer.get_absolute_url }}</a></dd>
 
-        <dt>{% trans "Página de Metadados" %}</dt>
+        <dt>{% trans "Metadata Page" %}</dt>
         <dd><a href="{{ SITEURL }}{{ layer.get_absolute_url }}/metadata_read">{{ SITEURL }}{{ layer.get_absolute_url }}/metadata_read</a></dd>
 
         {% if layer.doc_file %}
-        <dt>{% trans "Link Online" %}</dt>
+        <dt>{% trans "Online Link" %}</dt>
         <dd><a href="{{ SITEURL }}{{ layer.get_absolute_url }}/download">{{ SITEURL }}{{ layer.get_absolute_url }}/download</a></dd>
         {% endif %}
 
@@ -321,26 +320,20 @@
 
         {% for link in layer.link_set.ows %}
         <dt>{{link.name}}</dt>
-        <dd><a href="{{link.url}}">Geserviço {{link.link_type}}</a></dd>
+        <dd><a href="{{link.url}}">Geoservice {{link.link_type}}</a></dd>
         {% endfor %}
-
-        {% if layer.link_vinde %}
-        <hr>
-        <dt>Link no Visualizador da INDE</dt>
-        <dd><a href="{{layer.link_vinde}}">{{layer.link_vinde}}</a></dd>
-        {% endif %}
 
     </dl>
 
     {% if layer.metadata_author %}
-    <span class="subtitle">{% trans "Autor do Metadado" %}</span>
+    <span class="subtitle">{% trans "Metadata Author" %}</span>
     <div class="sep_title"><hr></div>
 
     <dl class="dl-horizontal">
 
         {% with layer.metadata_author as poc %}
 
-        <dt>{% trans "Nome" %}</dt>
+        <dt>{% trans "Name" %}</dt>
         <dd>{{ poc.name_long }}</dd>
 
         <dt>{% trans "email" %}</dt>
@@ -355,7 +348,7 @@
         <dt>{% trans "Location" %}</dt>
         <dd>{{ poc.location }}</dd>
 
-        <dt>{% trans "Voz" %}</dt>
+        <dt>{% trans "Voice" %}</dt>
         <dd>{{ poc.voice }}</dd>
 
         <dt>{% trans "Fax" %}</dt>

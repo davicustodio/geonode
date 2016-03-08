@@ -1,0 +1,380 @@
+{% extends "layers/layer_base.html" %}
+{% load i18n %}
+{% load bootstrap_tags %}
+
+{% block title %}{{ layer.typename }} — {{ block.super }}{% endblock %}
+
+{% block body_class %}data{% endblock %}
+
+{% block body_outer %}
+
+<style>
+
+    .subtitle {
+        font-size:16px;
+        color: #428bca;
+    }
+
+    .sep_title hr {
+        margin-top: 2px;
+    }
+
+</style>
+
+<div class="page-header">
+    {% if layer.doc_file %}
+    <a href="{% url 'document_detail' docid=docid %}" class="btn btn-primary pull-right">{% trans "Visitar Documento" %}</a>
+    {% else %}
+    <a href="{% url 'layer_detail' layername=layer.typename %}" class="btn btn-primary pull-right">{% trans "Visitar Camada" %}</a>
+    {% endif %}
+    <h2 class="page-title">{% trans "Metadados" %} : {{ layer.title }}</h2>
+</div>
+
+
+<article class="description tab-pane active" id="info">
+
+    <span class="subtitle">{% trans "Identificação" %}</span>
+    <div class="sep_title"><hr></div>
+
+    <dl class="dl-horizontal">
+        {% if layer.title %}
+        <dt>{% trans "Title" %}</dt>
+        <dd>{{ layer.title|truncatechars:80 }}</dd>
+        {% endif %}
+
+        {% if layer.abstract %}
+        <dt>{% trans "Abstract" %}</dt>
+        <dd>{{ layer.abstract|escape|urlize|linebreaks|safe|truncatechars:1000 }}</dd>
+        {% endif %}
+
+    </dl>    
+
+    <dl class="dl-horizontal">   
+
+        {% if LICENSES_ENABLED and LICENSES_DETAIL == 'above' and layer.license %}
+        <dt>{% trans "License" %}</dt>
+        <dd>{{ layer.license.name_long }} <a href="#license-more-above" data-toggle="collapse" data-target=".license-more-above"><i class="fa fa-info-circle"></i></a></dd>
+        {% endif %}
+        <dd class="license-more-above collapse">
+            {% for bullet in layer.license.description_bullets %}
+            {{ bullet }}<br/><br/>
+            {% endfor %}
+            {% if layer.license.url %}
+            + For more info see <a href="{{ layer.license.url }}">{{ layer.license.url }}</a>.
+            {% endif %}
+        </dd>
+
+
+        {% if layer.date %}
+        <dt>{% trans layer.date_type|title %} {% trans "Date" %}</dt>
+        <dd>{{ layer.date }}</dd>
+        {% endif %}
+
+        {% if layer.display_type %}
+        <dt>{% trans "Type" %}</dt>
+        <dd>{{ layer.display_type }}</dd>
+        {% endif %}
+
+        {% if layer.keyword_list %}
+        <dt>{% trans "Keywords" %}</dt>
+        <dd>{% for keyword in layer.keyword_list %}
+            {{ keyword }}
+            {% endfor %}</dd>
+        {% endif %}
+
+        {% if layer.category %}
+        <dt>{% trans "Category" %}</dt>
+        <dd><a href="/search/?category__identifier__in={{ layer.category.identifier }}">{{ layer.category }}</a> {% if layer.category.description %}<a href="#category-more" data-toggle="collapse" data-target=".category-more"><i class="fa fa-info-circle"></i></a>{% endif %}</dd>
+        {% if layer.category.description %}
+        <dd class="category-more collapse">
+            {{ layer.category.description }}
+        </dd>
+        {% endif %}
+        {% endif %}
+
+        {% if layer.regions.all %}
+        <dt>{% trans "Regions" %}</dt>
+        <dd>{{ layer.regions.all|join:", " }}</dd>
+        {% endif %}
+
+        <dt>{% trans "Publicado" %}</dt>
+        <dd>{% if layer.is_published %} Sim {% else %} Não {% endif %}</dd>
+
+        <dt>{% trans "Caracterizado" %}</dt>
+        <dd>{% if layer.featured %} Sim {% else %} Não {% endif %}</dd>
+
+
+    </dl>
+
+
+    <span class="subtitle">{% trans "Proprietário" %}</span>
+    <div class="sep_title"><hr></div>
+
+    <dl class="dl-horizontal">
+
+        {% if layer.owner %}
+        {% with layer.owner as poc %}
+
+        <dt>{% trans "Nome" %}</dt>
+        <dd>{{ poc.name_long }}</dd>
+
+        <dt>{% trans "email" %}</dt>
+        <dd>{{ poc.email }}</dd>
+
+        <dt>{% trans "Position" %}</dt>
+        <dd>{{ poc.position }}</dd>
+
+        <dt>{% trans "Organization" %}</dt>
+        <dd>{{ poc.organization }}</dd>
+
+        <dt>{% trans "Location" %}</dt>
+        <dd>{{ poc.location }}</dd>
+
+        <dt>{% trans "Voz" %}</dt>
+        <dd>{{ poc.voice }}</dd>
+
+        <dt>{% trans "Fax" %}</dt>
+        <dd>{{ poc.fax }}</dd>
+
+        {% if poc.keyword_list %}
+        <dt>{% trans "Keywords" %}</dt>
+        <dd>{% for keyword in poc.keyword_list %}
+            {{ keyword }}
+            {% endfor %}</dd>
+        {% endif %}
+
+        {% endwith %} 
+        {% endif %}
+
+    </dl>
+
+    <span class="subtitle">{% trans "Informações da Camada" %}</span>
+    <div class="sep_title"><hr></div>
+
+    <dl class="dl-horizontal">
+
+        <dt>{% trans "Imagem de Identificação" %}</dt>
+        <dd>
+            <a href="{{ layer.get_thumbnail_url }}"><img ng-src="{{ layer.get_thumbnail_url }}" src="{{ layer.get_thumbnail_url }}"></a>
+        </dd>
+
+    </dl>
+
+    <dl class="dl-horizontal">
+
+        <dt>{% trans "Resolução Espacial" %}</dt>
+        <dd>{% if layer.scale %} {{ layer.scale }} {% else %} --- {% endif %}</dd>
+
+        <dt>{% trans "Sistema de Projeção" %}</dt>
+        <dd>{{ layer.srid }}</dd>
+
+        <dt>{% trans "Extensão x0" %}</dt>
+        <dd>{{layer.bbox_x0}}</dd>
+
+        <dt>{% trans "Extensão x1" %}</dt>
+        <dd>{{layer.bbox_x1}}</dd>
+
+        <dt>{% trans "Extensão y0" %}</dt>
+        <dd>{{layer.bbox_y0}}</dd>
+
+        <dt>{% trans "Extensão y1" %}</dt>
+        <dd>{{layer.bbox_y1}}</dd>
+
+    </dl>
+
+    <span class="subtitle">{% trans "Caracteristicas" %}</span>
+    <div class="sep_title"><hr></div>
+
+    <dl class="dl-horizontal">
+
+        {% if LICENSES_ENABLED and LICENSES_DETAIL == 'below' and layer.license %}
+        <dt>{% trans "License" %}</dt>
+        <dd>{{ layer.license.name_long }} <a href="#license-more-below" data-toggle="collapse" data-target=".license-more-below"><i class="fa fa-info-circle"></i></a></dd>
+        <dd class="license-more-below collapse">
+            {% for bullet in layer.license.description_bullets %}
+            {{ bullet }}<br/><br/>
+            {% endfor %}
+            {% if layer.license.url %}
+            + For more info see <a href="{{ layer.license.url }}">{{ layer.license.url }}</a>.
+            {% endif %}
+        </dd>
+        {% endif %}
+
+        {% if layer.maintenance_frequency %}
+        <dt>{% trans "Maintenance Frequency" %}</dt>
+        <dd>{{ layer.maintenance_frequency_title }}</dd>
+        {% endif %}
+
+        {% if layer.restriction_code_type or layer.constraints_other %}
+        <dt>{% trans "Restrictions" %}</dt>
+        <dd>{% if layer.constraints_other %}
+            {{ layer.constraints_other }}
+            {% else %}
+            {{ layer.restriction_code_type }}
+            {% endif %}</dd>
+        {% endif %}
+
+        {% if layer.edition %}
+        <dt>{% trans "Edition" %}</dt>
+        <dd>{{ layer.edition}}</dd>
+        {% endif %}
+
+        {% if layer.purpose %}
+        <dt>{% trans "Purpose" %}</dt>
+        <dd>{{ layer.purpose|escape|urlize|linebreaks|safe|truncatechars:160 }}</dd>
+        {% endif %}
+
+        {% if layer.language %}
+        <dt>{% trans "Language" %}</dt>
+        <dd>{{ layer.language_title }}</dd>
+        {% endif %}
+
+        {% if layer.temporal_extent_start and layer.temporal_extent_end %}
+        <dt>{% trans "Temporal Extent" %}</dt>
+        <dd>{{ layer.temporal_extent_start }} - {{ layer.temporal_extent_end }}</dd>
+        {% endif %}
+
+        {% if layer.data_quality_statement %}
+        <dt>{% trans "Data Quality" %}</dt>
+        <dd>{{ layer.data_quality_statement }}</dd>
+        {% endif %}
+
+        {% if layer.supplemental_information %}
+        <dt>{% trans "Supplemental Information" %}</dt>
+        <dd>{{ layer.supplemental_information|truncatechars:160|escape|urlize|linebreaks|safe }}</dd>
+        {% endif %}
+
+        {% if layer.spatial_representation_type %}
+        <dt>{% trans "Spatial Representation Type" %}</dt>
+        <dd>{{ layer.spatial_representation_type }}</dd>
+        {% endif %}
+
+    </dl>
+    
+    {% if layer.poc and layer.poc|length > 0 %}   
+    <span class="subtitle">{% trans "Pontos de Contato" %}</span>
+    <div class="sep_title"><hr></div>
+
+    {% for poc in layer.poc %}
+    <dl class="dl-horizontal">
+
+        <dt>{% trans "Nome" %}</dt>
+        <dd>{{ poc.name_long }}</dd>
+
+        <dt>{% trans "email" %}</dt>
+        <dd>{{ poc.email }}</dd>
+
+        <dt>{% trans "Position" %}</dt> 
+        <dd>{{ poc.position }}</dd>
+
+        <dt>{% trans "Organization" %}</dt>
+        <dd>{{ poc.organization }}</dd>
+
+        <dt>{% trans "Location" %}</dt>
+        <dd>{{ poc.location }}</dd>
+
+        <dt>{% trans "Voz" %}</dt>
+        <dd>{{ poc.voice }}</dd>
+
+        <dt>{% trans "Fax" %}</dt>
+        <dd>{{ poc.fax }}</dd>
+
+        {% if poc.keyword_list %}
+        <dt>{% trans "Keywords" %}</dt>
+        <dd>{% for keyword in poc.keyword_list %}
+            {{ keyword }}
+            {% endfor %}</dd>
+        {% endif %}
+        
+        <hr>
+
+    </dl>
+    
+    
+    {% endfor %} 
+    {% endif %}
+
+    <span class="subtitle">{% trans "Referências/Distribuição" %}</span>
+    <div class="sep_title"><hr></div>
+
+    <dl class="dl-horizontal">
+
+        <dt>{% trans "Link Online" %}</dt>
+        <dd><a href="{{ SITEURL }}{{ layer.get_absolute_url }}">{{ SITEURL }}{{ layer.get_absolute_url }}</a></dd>
+
+        <dt>{% trans "Página de Metadados" %}</dt>
+        <dd><a href="{{ SITEURL }}{{ layer.get_absolute_url }}/metadata_read">{{ SITEURL }}{{ layer.get_absolute_url }}/metadata_read</a></dd>
+
+        {% if layer.doc_file %}
+        <dt>{% trans "Link Online" %}</dt>
+        <dd><a href="{{ SITEURL }}{{ layer.get_absolute_url }}/download">{{ SITEURL }}{{ layer.get_absolute_url }}/download</a></dd>
+        {% endif %}
+
+        <hr>
+
+        {% for link in layer.link_set.download %}
+        <dt>{{link.name}}</dt>
+        <dd><a href="{{link.url}}">{{layer.name}}.{{link.extension}}</a></dd>
+        {% endfor %}
+
+        <hr>
+
+        {% for link in layer.link_set.ows %}
+        <dt>{{link.name}}</dt>
+        <dd><a href="{{link.url}}">Geserviço {{link.link_type}}</a></dd>
+        {% endfor %}
+
+        {% if layer.link_vinde %}
+        <hr>
+        <dt>Link no Visualizador da INDE</dt>
+        <dd><a href="{{layer.link_vinde}}">{{layer.link_vinde}}</a></dd>
+        {% endif %}
+
+    </dl>
+
+    {% if layer.metadata_author %}
+    <span class="subtitle">{% trans "Autor do Metadado" %}</span>
+    <div class="sep_title"><hr></div>
+
+    <dl class="dl-horizontal">
+
+        {% with layer.metadata_author as poc %}
+
+        <dt>{% trans "Nome" %}</dt>
+        <dd>{{ poc.name_long }}</dd>
+
+        <dt>{% trans "email" %}</dt>
+        <dd>{{ poc.email }}</dd>
+
+        <dt>{% trans "Position" %}</dt>
+        <dd>{{ poc.position }}</dd>
+
+        <dt>{% trans "Organization" %}</dt>
+        <dd>{{ poc.organization }}</dd>
+
+        <dt>{% trans "Location" %}</dt>
+        <dd>{{ poc.location }}</dd>
+
+        <dt>{% trans "Voz" %}</dt>
+        <dd>{{ poc.voice }}</dd>
+
+        <dt>{% trans "Fax" %}</dt>
+        <dd>{{ poc.fax }}</dd>
+
+        {% if poc.keyword_list %}
+        <dt>{% trans "Keywords" %}</dt>
+        <dd>{% for keyword in poc.keyword_list %}
+            {{ keyword }}
+            {% endfor %}</dd>
+        {% endif %}
+
+        {% endwith %} 
+
+    </dl>
+    {% endif %}
+
+
+</article>
+
+
+{% endblock %}

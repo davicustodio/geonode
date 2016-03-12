@@ -38,5 +38,6 @@ urlpatterns = patterns('geonode.documents.views',
                        url(r'^(?P<docid>\d+)/remove$', 'document_remove', name="document_remove"),
                        url(r'^upload/?$', login_required(DocumentUploadView.as_view()), name='document_upload'),
                        url(r'^search/?$', 'document_search_page', name='document_search_page'),
+                       url(r'^(?P<docid>[^/]*)/metadata_read$', 'document_metadata_read', name='document_metadata_read'),
                        url(r'^(?P<docid>\d+)/metadata$', 'document_metadata', name='document_metadata'),
                        )

@@ -581,3 +581,15 @@ def layer_thumbnail(request, layername):
                 status=500,
                 content_type='text/plain'
             )
+
+def layer_metadata_read(request, layername, template='layers/layer_metadata_read.html'):        
+    layer = _resolve_layer(
+        request,
+        layername,
+        'view_resourcebase',
+        _PERMISSION_MSG_METADATA)
+    
+    return render_to_response(template, RequestContext(request, {
+        "layer": layer,
+        'SITEURL': settings.SITEURL[:-1]
+    }));
